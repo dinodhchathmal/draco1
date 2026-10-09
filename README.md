@@ -50,7 +50,7 @@ Open `/admin/login`. Do not share the first admin credential. Create another nam
 
 ## Database and security notes
 
-- `supabase/migrations/20261009120000_draco_store.sql` is the schema source of truth.
+- `supabase/migrations/20261009162821_draco_store_initial.sql` and `supabase/migrations/20261009163547_add_foreign_key_indexes.sql` are the applied schema migrations.
 - RLS is enabled on every application table. Customer/order/subscriber/receipt records are private; only active catalog rows are public.
 - Public order access requires both a high-entropy reference and a private UUID access token. The token is stored only as a SHA-256 hash and should not be shared.
 - Checkout uses `create_store_order`, which reads current prices, reserves stock, applies a locked promotion allowance, records immutable item snapshots, and writes order history in one database transaction.
@@ -62,7 +62,7 @@ Open `/admin/login`. Do not share the first admin credential. Create another nam
 
 ## Vercel deployment
 
-Create a Vercel project from the GitHub repository with the repository root as the project root. Use Next.js defaults and the standard build command `pnpm build` (or the package manager selected for the repository). Add all environment variables above. The included `vercel.json` configures daily reservation cleanup, which fits the Vercel Hobby cron limit. Apply the Supabase migration and configure environment variables before enabling production checkout.
+The production storefront is deployed at [draco1-umber.vercel.app](https://draco1-umber.vercel.app) from [dinodhchathmal/draco1](https://github.com/dinodhchathmal/draco1). Vercel is connected to the `dracostore` Supabase project. The URL, publishable key, site URL, cron secret, and rate-limit salt are configured. Add `SUPABASE_SERVICE_ROLE_KEY` in Vercel Project → Settings → Environment Variables (Production, Preview, and Development) before enabling order creation, private receipt handling, inventory writes, or admin APIs. The Hobby plan runs the reservation cleanup daily.
 
 ## Administration
 
@@ -84,6 +84,6 @@ Configure bank instructions, actual product details and photography, stock quant
 
 The browser cart is convenience state only. Checkout ignores client prices/totals and recalculates against database rows. Run production verification against a dedicated Supabase project with test products and no customer data.
 
-## Source delivery
+## Production state
 
-The ZIP includes application source, migration, lockfile when generated, and documentation. It excludes `.env*` secrets except `.env.example`, dependency directories, and build output. Create a public GitHub repository named `draco-storefront` and upload the extracted project files (or push the extracted folder with Git); then import that repository into Vercel.
+The home page, collection, and product page return HTTP 200 from the public deployment. Checkout and administration remain unavailable until the service-role key, first administrator, bank instructions, actual stock, genuine product photos, and reviewed legal/policy content are configured. The seeded product has zero stock, and the launch promotion remains inactive until DRACO supplies its discount.
