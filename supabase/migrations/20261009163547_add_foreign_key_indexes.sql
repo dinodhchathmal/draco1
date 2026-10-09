@@ -1,0 +1,12 @@
+create index if not exists inventory_movements_actor_idx on public.inventory_movements (actor);
+create index if not exists inventory_movements_order_id_idx on public.inventory_movements (order_id);
+create index if not exists inventory_movements_variant_id_idx on public.inventory_movements (variant_id);
+create index if not exists order_items_order_id_idx on public.order_items (order_id);
+create index if not exists order_items_product_id_idx on public.order_items (product_id);
+create index if not exists order_items_variant_id_idx on public.order_items (variant_id);
+create index if not exists order_status_history_actor_idx on public.order_status_history (actor);
+create index if not exists order_status_history_order_id_idx on public.order_status_history (order_id);
+create index if not exists payment_receipts_order_id_idx on public.payment_receipts (order_id);
+create index if not exists payment_receipts_reviewed_by_idx on public.payment_receipts (reviewed_by);
+create index if not exists products_collection_id_idx on public.products (collection_id);
+create index if not exists store_settings_updated_by_idx on public.store_settings (updated_by);
