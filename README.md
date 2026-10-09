@@ -31,7 +31,7 @@ Do not run the migration against an unrelated production database. It creates a 
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Browser-safe Supabase publishable key; RLS remains enabled |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server only; required for atomic order creation, private receipt operations, admin APIs, and rate limiting. Never expose as `NEXT_PUBLIC_*`. |
 | `NEXT_PUBLIC_SITE_URL` | Public origin for metadata and sitemap |
-| `CRON_SECRET` | Protects the hourly expired-reservation cleanup route |
+| `CRON_SECRET` | Protects the daily expired-reservation cleanup route |
 | `RATE_LIMIT_SALT` | Optional high-entropy salt for one-way IP hashes; if omitted, the server key is used |
 
 Set secrets in Vercel Project → Settings → Environment Variables for Production, Preview, and Development as needed. Use the publishable key and URL from the selected Supabase project’s Connect/API settings. Keep the service-role key server-side and never commit `.env.local`.
@@ -54,7 +54,7 @@ Open `/admin/login`. Do not share the first admin credential. Create another nam
 - RLS is enabled on every application table. Customer/order/subscriber/receipt records are private; only active catalog rows are public.
 - Public order access requires both a high-entropy reference and a private UUID access token. The token is stored only as a SHA-256 hash and should not be shared.
 - Checkout uses `create_store_order`, which reads current prices, reserves stock, applies a locked promotion allowance, records immutable item snapshots, and writes order history in one database transaction.
-- Reservations expire after 60 minutes. A Vercel Cron route calls the cleanup RPC hourly; order creation also cleans up expired reservations. Configure `CRON_SECRET` before deployment.
+- Reservations expire after 60 minutes. A Vercel Cron route calls the cleanup RPC daily; order creation also cleans up expired reservations. Configure `CRON_SECRET` before deployment.
 - Bank-transfer receipts are private Supabase Storage objects, limited to JPEG/PNG/PDF and 5 MB. Admin receipt links are short-lived signed URLs.
 - Product images are public storefront assets; only admins can upload/delete them. Never upload private customer documents to that bucket.
 - Newsletter subscribers are private. Consent is required; an individual one-time unsubscribe link is shown after subscribing. Add a mail provider before promising email delivery (the current feature stores subscribers only).
@@ -62,7 +62,7 @@ Open `/admin/login`. Do not share the first admin credential. Create another nam
 
 ## Vercel deployment
 
-Create a Vercel project from the GitHub repository with the repository root as the project root. Use Next.js defaults and the standard build command `pnpm build` (or the package manager selected for the repository). Add all environment variables above. The included `vercel.json` configures hourly reservation cleanup; use a Vercel plan that supports that schedule, or configure an external scheduler and call the protected route. Apply the Supabase migration and configure environment variables before enabling production checkout.
+Create a Vercel project from the GitHub repository with the repository root as the project root. Use Next.js defaults and the standard build command `pnpm build` (or the package manager selected for the repository). Add all environment variables above. The included `vercel.json` configures daily reservation cleanup, which fits the Vercel Hobby cron limit. Apply the Supabase migration and configure environment variables before enabling production checkout.
 
 ## Administration
 
