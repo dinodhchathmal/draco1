@@ -1,0 +1,3 @@
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+export async function getApiAdmin(){const auth=await createClient();const {data:{user}}=auth?await auth.auth.getUser():{data:{user:null}};if(!user)return {error:"Sign in required.",status:401 as const};const db=createAdminClient();if(!db)return {error:"Server is not configured.",status:503 as const};const {data:profile}=await db.from("profiles").select("role").eq("user_id",user.id).maybeSingle();if(profile?.role!=="admin")return {error:"Administrator access required.",status:403 as const};return {user,db};}

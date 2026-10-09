@@ -1,0 +1,3 @@
+import { createHash } from "node:crypto";
+import { createAdminClient } from "@/lib/supabase/admin";
+export async function allowRequest(request:Request,scope:string,limit:number,windowSeconds:number){const db=createAdminClient();if(!db)return true;const ip=request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()||request.headers.get("x-real-ip")||"unknown";const salt=process.env.RATE_LIMIT_SALT||process.env.SUPABASE_SERVICE_ROLE_KEY||"draco-local-unconfigured";const key=createHash("sha256").update(`${salt}:${scope}:${ip}`).digest("hex");const {data,error}=await db.rpc("consume_rate_limit",{p_key_hash:key,p_limit:limit,p_window_seconds:windowSeconds});return !error&&data===true;}

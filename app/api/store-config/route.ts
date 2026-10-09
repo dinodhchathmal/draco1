@@ -1,0 +1,3 @@
+import { NextResponse } from "next/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+export async function GET(){const db=createAdminClient();if(!db)return NextResponse.json({deliveryCharge:450,whatsapp:"+94741389234",socialLinks:{}});const {data}=await db.from("store_settings").select("key,value").in("key",["delivery_charge_lkr","whatsapp","social_links"]);const s=Object.fromEntries((data??[]).map(r=>[r.key,r.value]));return NextResponse.json({deliveryCharge:Number(s.delivery_charge_lkr??450),whatsapp:String(s.whatsapp??"+94741389234"),socialLinks:s.social_links??{}},{headers:{"cache-control":"public, max-age=60, stale-while-revalidate=300"}})}

@@ -1,0 +1,3 @@
+import type { Metadata } from "next";
+export const metadata: Metadata = { title: "Our World" };
+export default function WorldPage(){return <section className="editorial-page page-shell"><p className="eyebrow">A POINT OF VIEW / COLOMBO</p><h1>FORM<br/><em>FOLLOWS FEELING.</em></h1><div className="world-image" role="img" aria-label="DRACO editorial fashion portrait"/><div className="policy-copy"><p>DRACO is an independent clothing studio shaped by the city we call home. We make considered silhouettes, choose materials with care, and use embroidered details as a quiet signature.</p><p>Our first chapter is a study in restraint: clothing to be worn often, lived in, and made your own.</p><p className="eyebrow">DESIGNED IN SRI LANKA / EST. 2026</p></div></section>}

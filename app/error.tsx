@@ -1,0 +1,2 @@
+"use client";
+export default function ErrorPage({reset}:{error:Error&{digest?:string};reset:()=>void}){return <section className="page-shell"><p className="eyebrow">DRACO / TEMPORARY ERROR</p><h1>LET’S<br/><em>TRY AGAIN.</em></h1><p className="page-lede">This page could not load. Please try again in a moment.</p><button className="button button-light" onClick={()=>reset()}>Retry <span>↗</span></button></section>}

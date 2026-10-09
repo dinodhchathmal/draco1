@@ -1,0 +1,3 @@
+"use client";
+import { useState } from "react";
+export function OrderStatusAction({reference,nextStatus,label}:{reference:string;nextStatus:string;label:string}){const [busy,setBusy]=useState(false);const [message,setMessage]=useState("");async function act(){setBusy(true);try{const r=await fetch("/api/admin/orders",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({reference,action:"transition",nextStatus,note:`Updated to ${nextStatus}.`})});const d=await r.json();if(!r.ok)throw new Error(d.error);location.reload();}catch(e){setMessage(e instanceof Error?e.message:"Update failed.");setBusy(false);}}return <span className="status-action"><button onClick={act} disabled={busy}>{busy?"Updating…":label}</button><small>{message}</small></span>}

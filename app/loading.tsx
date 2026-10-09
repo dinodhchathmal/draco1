@@ -1,0 +1,1 @@
+export default function Loading(){return <div className="page-shell" aria-live="polite"><p className="eyebrow">DRACO STUDIO</p><h1>ONE<br/><em>MOMENT.</em></h1><p className="page-lede">Loading the collection…</p></div>}

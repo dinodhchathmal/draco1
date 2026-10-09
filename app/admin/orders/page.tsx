@@ -1,0 +1,15 @@
+import { requireAdmin } from "@/lib/admin";
+import { formatLkr } from "@/lib/config";
+import { AdminNav } from "@/components/admin-nav";
+import { PaymentReview } from "@/components/payment-review";
+import { OrderStatusAction } from "@/components/order-status-action";
+type Receipt={id:string;storage_path:string;status:string;created_at:string};
+type Customer={fullName?:string;phone?:string;address?:string;city?:string;district?:string;email?:string};
+type AdminOrder={id:string;public_reference:string;order_status:string;payment_status:string;total_lkr:number;created_at:string;customer:Customer;payment_receipts:Receipt[]};
+export const dynamic="force-dynamic";
+export default async function AdminOrders(){
+  const {db}=await requireAdmin();const {data}=await db.from("orders").select("id,public_reference,order_status,payment_status,total_lkr,created_at,customer,payment_receipts(id,storage_path,status,created_at)").order("created_at",{ascending:false}).limit(100);const orders=(data??[]) as AdminOrder[];
+  const receipts=orders.flatMap(o=>o.payment_receipts.map(r=>({order:o,receipt:r})));
+  const signed=await Promise.all(receipts.map(async({receipt})=>{const {data:urlData}=await db.storage.from("payment-receipts").createSignedUrl(receipt.storage_path,120);return [receipt.id,urlData?.signedUrl??""] as const;}));const urls=Object.fromEntries(signed);
+  return <section className="page-shell admin-shell"><p className="eyebrow">DRACO / ADMINISTRATION</p><h1>ORDER<br/><em>DESK.</em></h1><AdminNav/><div className="admin-table">{orders.map(o=><article className="order-admin-card" key={o.id}><div className="admin-section-head"><h2>{o.public_reference}</h2><span>{formatLkr(o.total_lkr)}</span></div><div className="order-admin-meta"><span>{o.order_status.replaceAll("_"," ")}</span><span>Payment: {o.payment_status.replaceAll("_"," ")}</span><span>{new Date(o.created_at).toLocaleString()}</span></div><details><summary>Customer and fulfillment details</summary><p>{o.customer.fullName} · {o.customer.phone}</p><p>{o.customer.address}, {o.customer.city} {o.customer.district}</p><p>{o.customer.email}</p><p>Order id: {o.id}</p></details>{o.payment_receipts.map(r=><div className="receipt-admin" key={r.id}><span>Receipt / {r.status}</span>{urls[r.id]&&<a href={urls[r.id]} target="_blank" rel="noreferrer">Open private receipt ↗</a>}</div>)}{o.payment_status==="receipt_submitted"&&<PaymentReview reference={o.public_reference}/>}<div className="review-actions">{o.order_status==="pending_payment"&&<OrderStatusAction reference={o.public_reference} nextStatus="cancelled" label="Cancel order"/>}{o.order_status==="confirmed"&&<OrderStatusAction reference={o.public_reference} nextStatus="processing" label="Start fulfilment"/>}{o.order_status==="processing"&&<OrderStatusAction reference={o.public_reference} nextStatus="shipped" label="Mark shipped"/>}{o.order_status==="shipped"&&<OrderStatusAction reference={o.public_reference} nextStatus="delivered" label="Mark delivered"/>}</div></article>)}{!orders.length&&<p className="admin-empty">No orders have been placed.</p>}</div></section>
+}

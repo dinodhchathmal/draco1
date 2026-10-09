@@ -1,0 +1,2 @@
+import { UnsubscribeButton } from "@/components/unsubscribe-button";
+export default async function UnsubscribePage({searchParams}:{searchParams:Promise<{token?:string}>}){const {token}=await searchParams;return <section className="page-shell"><p className="eyebrow">DRACO / EMAIL PREFERENCES</p><h1>YOUR<br/><em>CHOICE.</em></h1><p className="page-lede">Use this private link to unsubscribe from DRACO studio updates.</p><UnsubscribeButton token={token??""}/></section>}
